@@ -1,0 +1,3 @@
+#include <spinnymotors>
+// Capudo "Our robot is made up of spinny motors
+SpinnyMotor = SpinMotor
