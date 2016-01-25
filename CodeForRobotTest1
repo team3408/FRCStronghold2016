@@ -15,6 +15,16 @@ using namespace std;
 
 class Robot: public IterativeRobot
 {
+	//pneumatics for hanging
+	DoubleSolenoid hang;
+
+	// Update every 5milliseconds/0.005 seconds.
+	const double kUpdatePeriod = 0.005;
+
+	// Numbers of the buttons to use for triggering the solenoids.
+	const int kDoubleSolenoidForward = 2;
+	const int kDoubleSolenoidReverse = 4;
+
 	//drive motors (front is 1, middle is 2, back is 3)
 	CANTalon leftDrive1;
 	CANTalon leftDrive2;
@@ -41,6 +51,7 @@ class Robot: public IterativeRobot
 
 public:
 	Robot() :
+		hang(1, 2),
 		leftDrive1(1),
 		leftDrive2(2),
 		leftDrive3(3),
@@ -73,13 +84,15 @@ private:
 
 	void AutonomousPeriodic()
 	{
-		if(autoLoopCounter < 100) //Check if we've completed 100 loops (approximately 2 seconds)
-		{
-			myRobot.Drive(-0.5, 0.0); 	// drive forwards half speed
-			autoLoopCounter++;
-			} else {
-			myRobot.Drive(0.0, 0.0); 	// stop robot
-		}
+		loader.Set(0);
+		spin.Set(0);
+		leftDrive1.Set(0);
+		leftDrive2.Set(0);
+		leftDrive3.Set(0);
+		rightDrive1.Set(0);
+		rightDrive2.Set(0);
+		rightDrive3.Set(0);
+
 	}
 
 	void TeleopInit()
@@ -89,6 +102,18 @@ private:
 
 	void TeleopPeriodic()
 	{
+		//pneumatics controller
+		if (buttonStick.GetRawButton(kDoubleSolenoidForward)){
+			hang.Set(DoubleSolenoid::kForward);
+		}
+		else if (buttonStick.GetRawButton(kDoubleSolenoidReverse)) {
+			hang.Set(DoubleSolenoid::kReverse);
+		}
+		else {
+			hang.Set(DoubleSolenoid::kOff);
+		}
+
+
 		//variables that control the speed of the motors on each side, because we are running tank drive, we only need two
 		float driveLeft = driveStick.GetRawAxis(1);
 		float driveRight = driveStick.GetRawAxis(3);
