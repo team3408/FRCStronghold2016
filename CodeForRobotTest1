@@ -1,6 +1,13 @@
 /* written by the programmers of team 3408
- ++++++++++++++++++++++++
 
+ ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+ * Functions of Code:
+ * 6 wheel, drop center tank drive
+ * pneumatics controls for hanging
+ * motor for controlling pneumatics
+ * motor for loading the boulders
+ * motor for boulder intake system
  */
 
 
