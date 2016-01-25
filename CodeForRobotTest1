@@ -1,0 +1,142 @@
+/* written by the programmers of team 3408
+ ++++++++++++++++++++++++
+
+ */
+
+
+
+//include libraries
+#include "WPILib.h"
+#include <iostream>
+#include <math.h>
+#include <AnalogInput.h>
+
+using namespace std;
+
+class Robot: public IterativeRobot
+{
+	//drive motors (front is 1, middle is 2, back is 3)
+	CANTalon leftDrive1;
+	CANTalon leftDrive2;
+	CANTalon leftDrive3;
+	CANTalon rightDrive1;
+	CANTalon rightDrive2;
+	CANTalon rightDrive3;
+
+	//pneumatics adjustment motors
+	CANTalon pneumatics1;
+	CANTalon pneumatics2;
+
+	//1 motor for loading
+	CANTalon loader;
+
+	//1 motor for spinning
+	CANTalon spin;
+
+	RobotDrive myRobot; // robot drive system
+	Joystick buttonStick;
+	Joystick driveStick;
+	LiveWindow *lw;
+	int autoLoopCounter;
+
+public:
+	Robot() :
+		leftDrive1(1),
+		leftDrive2(2),
+		leftDrive3(3),
+		rightDrive1(4),
+		rightDrive2(5),
+		rightDrive3(6),
+		pneumatics1(7),
+		pneumatics2(8),
+		loader(9),
+		spin(10),
+		myRobot(0, 1),	// these must be initialized in the same order
+		buttonStick(0),
+		driveStick(1),
+		lw(NULL),
+		autoLoopCounter(0)
+	{
+		myRobot.SetExpiration(0.1);
+	}
+
+private:
+	void RobotInit()
+	{
+		lw = LiveWindow::GetInstance();
+	}
+
+	void AutonomousInit()
+	{
+		autoLoopCounter = 0;
+	}
+
+	void AutonomousPeriodic()
+	{
+		if(autoLoopCounter < 100) //Check if we've completed 100 loops (approximately 2 seconds)
+		{
+			myRobot.Drive(-0.5, 0.0); 	// drive forwards half speed
+			autoLoopCounter++;
+			} else {
+			myRobot.Drive(0.0, 0.0); 	// stop robot
+		}
+	}
+
+	void TeleopInit()
+	{
+
+	}
+
+	void TeleopPeriodic()
+	{
+		//variables that control the speed of the motors on each side, because we are running tank drive, we only need two
+		float driveLeft = driveStick.GetRawAxis(1);
+		float driveRight = driveStick.GetRawAxis(3);
+
+		//divide by 2 so that we don't go too fast.  Also allows us to enable slow and fast modes
+		driveLeft = driveLeft/2;
+		driveRight = driveRight/2;
+
+		//true or false variables that allow us to change the speed when the buttons are held down
+		bool slow = driveStick.GetRawButton(7);
+		bool fast = driveStick.GetRawButton(8);
+
+		//an if, else if statement that controls when the boolean buttons are pressed so that we can change the driving speeds
+		if (slow){
+			driveLeft = driveLeft/2;
+			driveRight = driveRight/2;
+		}
+		else if (fast){
+			driveLeft = driveLeft*2;
+			driveRight = driveRight*2;
+		}
+
+		bool spinMotor = buttonStick.GetRawButton(1);
+		float spinMotorValue;
+		if (spinMotor) {
+			spinMotorValue = 127;
+		}
+		else {
+			spinMotorValue = 0;
+		}
+
+		float loaderValue = buttonStick.GetRawAxis(1);
+
+		loader.Set(loaderValue);
+		spin.Set(spinMotorValue);
+		leftDrive1.Set(driveLeft);
+		leftDrive2.Set(driveLeft);
+		leftDrive3.Set(driveLeft);
+		rightDrive1.Set(driveRight);
+		rightDrive2.Set(driveRight);
+		rightDrive3.Set(driveRight);
+
+	}
+
+	void TestPeriodic()
+	{
+		lw->Run();
+	}
+};
+
+START_ROBOT_CLASS(Robot);
