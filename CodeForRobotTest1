@@ -15,6 +15,7 @@
 //include libraries
 #include "WPILib.h"
 #include <iostream>
+#include <string>
 #include <math.h>
 #include <AnalogInput.h>
 
@@ -25,14 +26,11 @@ class Robot: public IterativeRobot
 	//pneumatics for hanging
 	DoubleSolenoid hang;
 
-	// Update every 5milliseconds/0.005 seconds.
-	const double kUpdatePeriod = 0.005;
-
 	// Numbers of the buttons to use for triggering the solenoids.
-	const int kDoubleSolenoidForward = 2;
-	const int kDoubleSolenoidReverse = 4;
+	const int kDoubleSolenoidForward = 6;
+	const int kDoubleSolenoidReverse = 5;
 
-	//drive motors (front is 1, middle is 2, back is 3)
+	//drive motors (front is 1, back is 2)
 	CANTalon leftDrive1;
 	CANTalon leftDrive2;
 	CANTalon rightDrive1;
@@ -45,7 +43,7 @@ class Robot: public IterativeRobot
 	//1 motor for loading
 	CANTalon loader;
 
-	//1 motor for spinning
+	//1 motor for spinning boulders for pickup
 	CANTalon spin;
 
 	RobotDrive myRobot; // robot drive system
@@ -54,6 +52,10 @@ class Robot: public IterativeRobot
 	LiveWindow *lw;
 	int autoLoopCounter;
 
+	//Encoders
+	Encoder *encoderClimber = new Encoder(2,3, false, Encoder::EncodingType::k4X);
+	float startValue;
+	float finalValue;
 public:
 	Robot() :
 		hang(1, 2),
@@ -78,6 +80,11 @@ private:
 	void RobotInit()
 	{
 		lw = LiveWindow::GetInstance();
+		encoderClimber->SetMaxPeriod(.1);
+		encoderClimber->SetMinRate(10);
+		encoderClimber->SetDistancePerPulse(5);
+		encoderClimber->SetReverseDirection(true);
+		encoderClimber->SetSamplesToAverage(7);
 	}
 
 	void AutonomousInit()
@@ -98,11 +105,13 @@ private:
 
 	void TeleopInit()
 	{
-
+		startValue = encoderClimber->GetDistance();
 	}
 
 	void TeleopPeriodic()
 	{
+		finalValue = startValue +2000;
+
 		//pneumatics controller
 		if (buttonStick.GetRawButton(kDoubleSolenoidForward)){
 			hang.Set(DoubleSolenoid::kForward);
@@ -137,10 +146,14 @@ private:
 			driveRight = driveRight*2;
 		}
 
-		bool spinMotor = buttonStick.GetRawButton(1);
+		bool spinMotorOut = buttonStick.GetRawButton(4);
+		bool spinMotorIn = buttonStick.GetRawButton(2);
 		float spinMotorValue;
-		if (spinMotor) {
-			spinMotorValue = 127;
+		if (spinMotorOut) {
+			spinMotorValue = 1;
+		}
+		else if (spinMotorIn){
+			spinMotorValue = -1;
 		}
 		else {
 			spinMotorValue = 0;
@@ -148,6 +161,25 @@ private:
 
 		float loaderValue = buttonStick.GetRawAxis(1);
 
+		float pneumaticsValue;
+		bool automaticMovement = buttonStick.GetRawButton(3);
+		pneumaticsValue = buttonStick.GetRawAxis(3);
+		if (pneumaticsValue < .10 && pneumaticsValue > -.10){
+			pneumaticsValue = 0;
+		}
+		if (automaticMovement && encoderClimber->GetDistance() < finalValue) {
+			while (encoderCLimber->GetDistance() <= finalValue){
+
+			}
+		}
+		else if (automaticMovement && encoderClimber->GetDistance() >) {
+
+		}
+		else {
+			pneumaticsValue = 0;
+		}
+		pneumatics1.Set(pneumaticsValue);
+		pneumatics2.Set(pneumaticsValue);
 		loader.Set(loaderValue);
 		spin.Set(spinMotorValue);
 		leftDrive1.Set(driveLeft);
