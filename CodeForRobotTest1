@@ -35,10 +35,8 @@ class Robot: public IterativeRobot
 	//drive motors (front is 1, middle is 2, back is 3)
 	CANTalon leftDrive1;
 	CANTalon leftDrive2;
-	CANTalon leftDrive3;
 	CANTalon rightDrive1;
 	CANTalon rightDrive2;
-	CANTalon rightDrive3;
 
 	//pneumatics adjustment motors
 	CANTalon pneumatics1;
@@ -61,10 +59,8 @@ public:
 		hang(1, 2),
 		leftDrive1(1),
 		leftDrive2(2),
-		leftDrive3(3),
 		rightDrive1(4),
 		rightDrive2(5),
-		rightDrive3(6),
 		pneumatics1(7),
 		pneumatics2(8),
 		loader(9),
@@ -95,10 +91,8 @@ private:
 		spin.Set(0);
 		leftDrive1.Set(0);
 		leftDrive2.Set(0);
-		leftDrive3.Set(0);
 		rightDrive1.Set(0);
 		rightDrive2.Set(0);
-		rightDrive3.Set(0);
 
 	}
 
@@ -158,10 +152,8 @@ private:
 		spin.Set(spinMotorValue);
 		leftDrive1.Set(driveLeft);
 		leftDrive2.Set(driveLeft);
-		leftDrive3.Set(driveLeft);
 		rightDrive1.Set(driveRight);
 		rightDrive2.Set(driveRight);
-		rightDrive3.Set(driveRight);
 
 	}
 
